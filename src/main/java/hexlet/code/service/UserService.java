@@ -9,6 +9,7 @@ import hexlet.code.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,14 +24,15 @@ public class UserService {
     @Autowired
     UserMapper userMapper;
 
-    public List<UserDTO> index() {
-        var us = new UserCreateDTO();
-        us.setEmail("sds");
-        us.setPassword("123");
-        return userRepository.findAll()
+    public ResponseEntity<List<UserDTO>> index() {
+        var users =  userRepository.findAll()
                 .stream()
                 .map(u -> userMapper.map(u))
                 .toList();
+
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(users.size()))
+                .body(users);
     }
 
     public UserDTO show(Long id) {

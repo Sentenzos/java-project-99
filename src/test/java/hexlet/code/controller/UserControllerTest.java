@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +33,7 @@ public class UserControllerTest {
 
     @Test
     public void testIndex() throws Exception {
-        var result = mockMvc.perform(get("/api/users"))
+        var result = mockMvc.perform(get("/api/users").with(jwt()))
                 .andExpect(status().isOk()).andReturn();
         var body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
@@ -40,7 +41,7 @@ public class UserControllerTest {
 
     @Test
     public void testShow() throws Exception {
-        var result = mockMvc.perform(get("/api/users/1"))
+        var result = mockMvc.perform(get("/api/users/1").with(jwt()))
                 .andExpect(status().isOk()).andReturn();
         var body = result.getResponse().getContentAsString();
         assertThatJson(body).toString().contains("hexlet@example.com");
@@ -55,7 +56,7 @@ public class UserControllerTest {
         data.put("password", "12345678");
 
 
-        var request = post("/api/users")
+        var request = post("/api/users").with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
 
@@ -83,7 +84,7 @@ public class UserControllerTest {
         data.put("email", "new@email.com");
         data.put("password", "87654321");
 
-        var request = put("/api/users/" + userId)
+        var request = put("/api/users/" + userId).with(jwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
 
@@ -92,5 +93,17 @@ public class UserControllerTest {
         assertThat(userRepository.findByEmail("new@email.com").isPresent()).isTrue();
 
         userRepository.deleteAll();
+    }
+
+    @Test
+    public void testIndexWithoutAuth() throws Exception {
+        var response = mockMvc.perform(get("/api/users"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testShowWithoutAuth() throws Exception {
+        var response = mockMvc.perform(get("/api/users/{id}", 1))
+                .andExpect(status().isUnauthorized());
     }
 }
