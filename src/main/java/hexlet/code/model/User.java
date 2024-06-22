@@ -2,6 +2,7 @@ package hexlet.code.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -24,19 +25,26 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Setter
 public class User implements UserDetails, BaseEntity {
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @NotNull
     private Long id;
+
     private String firstName;
+
     private String lastName;
+
     @Email
     @Column(unique = true)
     private String email;
+
     @Size(min = 3)
+    @NotBlank
     private String passwordDigest;
+
     @CreatedDate
     private LocalDate createdAt;
+
     @LastModifiedDate
     private LocalDate updatedAt;
 
