@@ -2,6 +2,7 @@ package hexlet.code.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,26 +13,25 @@ import java.time.LocalDate;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
-@Entity
-@Table(name = "task_statuses")
-@EntityListeners(AuditingEntityListener.class)
-@Setter
 @Getter
-public class TaskStatus implements BaseEntity {
-
+@Setter
+@Entity
+@Table(name = "tasks")
+@EntityListeners(AuditingEntityListener.class)
+public class Task implements BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
-
-    @Size(min = 1)
     @NotBlank
+    @Size(min = 1)
     private String name;
-
-//    @Size(min = 1)
-//    @NotBlank
-//    @Column(unique = true)
-    private String slug;
-
+    private Integer index;
+    private String description;
+    @ManyToOne
+    @NotNull
+    private TaskStatus taskStatus;
+    @ManyToOne
+    User assignee;
     @CreatedDate
-    private LocalDate createdAt;
+    LocalDate createdAt;
 }
