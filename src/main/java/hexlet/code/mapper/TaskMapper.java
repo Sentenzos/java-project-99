@@ -8,12 +8,18 @@ import hexlet.code.dto.taskStatus.TaskStatusDTO;
 import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
 import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(
         uses = { JsonNullableMapper.class, ReferenceMapper.class },
@@ -24,23 +30,28 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public abstract class TaskMapper {
     @Autowired
     private TaskStatusRepository taskStatusRepository;
+    @Autowired
+    private LabelRepository labelRepository;
 
     @Mapping(target = "assignee", source = "assignee_id")
     @Mapping(target = "description", source = "content")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "taskStatus", source = "status", qualifiedByName = "getStatusBySlug")
+    @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "getLabels")
     public abstract Task map(TaskCreateDTO dto);
 
     @Mapping(target = "assignee_id", source = "assignee.id")
     @Mapping(target = "content", source = "description")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "status", source = "taskStatus.slug")
+    @Mapping(target = "taskLabelIds", source = "labels", qualifiedByName = "getLabelIds")
     public abstract TaskDTO map(Task model);
 
     @Mapping(target = "assignee", source = "assignee_id")
     @Mapping(target = "description", source = "content")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "taskStatus", source = "status", qualifiedByName = "getStatusBySlug")
+    @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "getLabels")
     public abstract void update(TaskUpdateDTO dto, @MappingTarget Task model);
 
     @Named("getStatusBySlug")
@@ -50,5 +61,20 @@ public abstract class TaskMapper {
                         -> new ResourceNotFoundException("Status with slug " + status + " not found"));
     }
 
+    @Named("getLabelIds")
+    Set<Long> getLabelIds(Set<Label> labels) {
+        return labels.stream()
+                .map(Label::getId)
+                .collect(Collectors.toSet());
+    }
+
+    @Named("getLabels")
+    Set<Label> getLabels(Set<Long> labelIds) {
+        return labelRepository.findAll()
+                .stream()
+                .map(label -> labelIds.contains(label.getId()) ? label : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
 }
 

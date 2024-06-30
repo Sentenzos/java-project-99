@@ -43,7 +43,8 @@ dependencies {
 	testImplementation("org.springframework.security:spring-security-test")
 
 	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
-	implementation 'org.instancio:instancio-junit:3.3.0'
+	implementation ("org.instancio:instancio-junit:3.3.0")
+	implementation("org.springdoc:springdoc-openapi-ui:1.8.0")
 }
 
 tasks.named('test') {

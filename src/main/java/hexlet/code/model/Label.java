@@ -2,10 +2,8 @@ package hexlet.code.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -14,27 +12,20 @@ import java.util.Set;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
-@Getter
-@Setter
+@Data
 @Entity
-@Table(name = "tasks")
+@Table(name = "labels")
 @EntityListeners(AuditingEntityListener.class)
-public class Task implements BaseEntity {
+public class Label {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
     @NotBlank
-    @Size(min = 1)
+    @Size(min = 3)
+    @Column(unique = true)
     private String name;
-    private Integer index;
-    private String description;
-    @ManyToOne
-    @NotNull
-    private TaskStatus taskStatus;
-    @ManyToOne
-    private User assignee;
     @ManyToMany
-    private Set<Label> labels;
+    private Set<Task> tasks;
     @CreatedDate
     private LocalDate createdAt;
 }
