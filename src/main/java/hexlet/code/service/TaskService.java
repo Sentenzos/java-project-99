@@ -2,6 +2,7 @@ package hexlet.code.service;
 
 import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
+import hexlet.code.dto.task.TaskParamsDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
 import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
@@ -11,6 +12,7 @@ import hexlet.code.mapper.TaskMapper;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.specification.TaskSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,15 +21,18 @@ import java.util.List;
 
 @Service
 public class TaskService {
-
     @Autowired
     TaskRepository taskRepository;
 
     @Autowired
     TaskMapper taskMapper;
 
-    public ResponseEntity<List<TaskDTO>> index() {
-        var tasks =  taskRepository.findAll()
+    @Autowired
+    TaskSpecification specification;
+
+    public ResponseEntity<List<TaskDTO>> index(TaskParamsDTO params) {
+        var spec = specification.build(params);
+        var tasks =  taskRepository.findAll(spec)
                 .stream()
                 .map(t -> taskMapper.map(t))
                 .toList();
@@ -44,8 +49,10 @@ public class TaskService {
     }
 
     public TaskDTO create(TaskCreateDTO data) {
+//        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         var task = taskMapper.map(data);
-        System.out.println(task);
+//        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//        System.out.println(task);
         taskRepository.save(task);
         return taskMapper.map(task);
     }

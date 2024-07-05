@@ -2,6 +2,7 @@ package hexlet.code.controller;
 
 import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
+import hexlet.code.dto.task.TaskParamsDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
 import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
@@ -23,8 +24,8 @@ public class TasksController {
     TaskService taskService;
 
     @GetMapping
-    public ResponseEntity<List<TaskDTO>> index() {
-        return taskService.index();
+    public ResponseEntity<List<TaskDTO>> index(TaskParamsDTO params) {
+        return taskService.index(params);
     }
 
     @GetMapping("/{id}")

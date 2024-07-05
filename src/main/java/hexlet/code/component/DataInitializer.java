@@ -1,11 +1,10 @@
 package hexlet.code.component;
 
-import hexlet.code.dto.label.LabelCreateDTO;
-import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
-import hexlet.code.dto.taskStatus.TaskStatusDTO;
 import hexlet.code.dto.user.UserCreateDTO;
-import hexlet.code.service.LabelService;
-import hexlet.code.service.TaskStatusService;
+import hexlet.code.model.Label;
+import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.LabelRepository;
+import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -18,53 +17,45 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class DataInitializer implements ApplicationRunner {
     @Autowired
-    private final UserService userService;
+    UserService userService;
     @Autowired
-    private final TaskStatusService taskStatusService;
+    private TaskStatusRepository taskStatusRepository;
     @Autowired
-    private final LabelService labelService;
+    private LabelRepository labelRepository;
+
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        //TODO создание сущностей в отдельные методы
-        // и не через сервис создавать, а через репозиторий (свериться с приложением хекслет)
-        var email = "hexlet@example.com";
-        var userData = new UserCreateDTO();
-        userData.setEmail(email);
-        userData.setPassword("qwerty");
-        userService.create(userData);
+        createUser("hexlet@example.com", "qwerty");
+        createTaskStatus("draft", "draft");
+        createTaskStatus("to_review", "to_review");
+        createTaskStatus("to_be_fixed", "to_be_fixed");
+        createTaskStatus("to_publish", "to_publish");
+        createTaskStatus("published", "published");
+        createLabel("feature");
+        createLabel("bug");
+    }
 
-        var taskStatus1 = new TaskStatusCreateDTO();
-        taskStatus1.setName("draft");
-        taskStatus1.setSlug("draft");
-        taskStatusService.create(taskStatus1);
+    private void createUser(String email, String password) {
+        var user = new UserCreateDTO();
+        user.setEmail(email);
+        user.setPassword(password);
+        userService.create(user);
+    }
 
-        var taskStatus2 = new TaskStatusCreateDTO();
-        taskStatus2.setName("to_review");
-        taskStatus2.setSlug("to_review");
-        taskStatusService.create(taskStatus2);
+    private void createTaskStatus(String name, String slug) {
+        var taskStatus = new TaskStatus();
+        taskStatus.setName(name);
+        taskStatus.setSlug(slug);
+        taskStatusRepository.save(taskStatus);
+    }
 
-        var taskStatus3 = new TaskStatusCreateDTO();
-        taskStatus3.setName("to_be_fixed");
-        taskStatus3.setSlug("to_be_fixed");
-        taskStatusService.create(taskStatus3);
-
-        var taskStatus4 = new TaskStatusCreateDTO();
-        taskStatus4.setName("to_publish");
-        taskStatus4.setSlug("to_publish");
-        taskStatusService.create(taskStatus4);
-
-        var taskStatus5 = new TaskStatusCreateDTO();
-        taskStatus5.setName("published");
-        taskStatus5.setSlug("published");
-        taskStatusService.create(taskStatus5);
-
-        var label1 = new LabelCreateDTO();
-        label1.setName("feature");
-        labelService.create(label1);
-
-        var label2 = new LabelCreateDTO();
-        label2.setName("bug");
-        labelService.create(label2);
+    private void createLabel(String name) {
+        var label = new Label();
+        label.setName(name);
+        labelRepository.save(label);
     }
 }
+
+
+

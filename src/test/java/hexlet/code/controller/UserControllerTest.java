@@ -1,13 +1,20 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.user.UserUpdateDTO;
+import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.util.ModelCreator;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
@@ -31,9 +38,31 @@ public class UserControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    ModelCreator modelCreator;
+
+    @Autowired
+    UserMapper userMapper;
+
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
+
+    User testUser;
+
+    @BeforeEach
+    public void beforeEach() {
+        testUser = modelCreator.userModel();
+        userRepository.save(testUser);
+        token = jwt().jwt(builder -> builder.subject(userRepository.findAll().get(0).getEmail()));
+    }
+
+    @AfterEach
+    public void afterEach() {
+        userRepository.deleteAll();
+    }
+
     @Test
     public void testIndex() throws Exception {
-        var result = mockMvc.perform(get("/api/users").with(jwt()))
+        var result = mockMvc.perform(get("/api/users").with(token))
                 .andExpect(status().isOk()).andReturn();
         var body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
@@ -41,70 +70,50 @@ public class UserControllerTest {
 
     @Test
     public void testShow() throws Exception {
-        var result = mockMvc.perform(get("/api/users/1").with(jwt()))
+        userRepository.save(testUser);
+        var result = mockMvc.perform(get("/api/users/{id}", testUser.getId()).with(token))
                 .andExpect(status().isOk()).andReturn();
         var body = result.getResponse().getContentAsString();
-        assertThatJson(body).toString().contains("hexlet@example.com");
+        assertThatJson(body).toString().contains(testUser.getEmail());
     }
 
     @Test
     public void testCreate() throws Exception {
-        var data = new HashMap<>();
-        data.put("firstName", "Ruslan");
-        data.put("lastName", "Nek");
-        data.put("email", "test@email.com");
-        data.put("password", "12345678");
-
-
-        var request = post("/api/users").with(jwt())
+        var user = modelCreator.userModel();
+        var request = post("/api/users").with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(data));
+                .content(om.writeValueAsString(user));
 
         mockMvc.perform(request)
                 .andExpect(status().isCreated());
 
-        assertThat(userRepository.findByEmail("test@email.com").isPresent()).isTrue();
-
-        userRepository.deleteAll();
+        assertThat(userRepository.findByEmail(user.getEmail()).isPresent()).isTrue();
     }
 
     @Test
     public void testUpdate() throws Exception {
-        //TODO создание юзера в отдельный метод
-        var user = new User();
-        user.setFirstName("Ruslan");
-        user.setLastName("Nek");
-        user.setEmail("test@email.com");
-        //TODO что по поводу шифрования?
-        user.setPasswordDigest("12345678");
-        userRepository.save(user);
+        var data = new UserUpdateDTO();
+        var email = JsonNullable.of("new@email.com");
+        data.setEmail(email);
 
-        var userId = userRepository.findByEmail("test@email.com").get().getId();
-
-        var data = new HashMap<>();
-        data.put("email", "new@email.com");
-        data.put("password", "87654321");
-
-        var request = put("/api/users/" + userId).with(jwt())
+        var request = put("/api/users/{id}", testUser.getId()).with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
 
         mockMvc.perform(request);
 
-        assertThat(userRepository.findByEmail("new@email.com").isPresent()).isTrue();
-
-        userRepository.deleteAll();
+        assertThat(userRepository.findByEmail(email.get()).isPresent()).isTrue();
     }
 
     @Test
     public void testIndexWithoutAuth() throws Exception {
-        var response = mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/users"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     public void testShowWithoutAuth() throws Exception {
-        var response = mockMvc.perform(get("/api/users/{id}", 1))
+        mockMvc.perform(get("/api/users/{id}", 1))
                 .andExpect(status().isUnauthorized());
     }
 }

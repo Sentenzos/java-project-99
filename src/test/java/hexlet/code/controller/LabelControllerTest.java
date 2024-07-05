@@ -2,18 +2,26 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.label.LabelCreateDTO;
+import hexlet.code.dto.label.LabelUpdateDTO;
 import hexlet.code.dto.task.TaskCreateDTO;
+import hexlet.code.mapper.LabelMapper;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
+import hexlet.code.model.User;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.util.ModelCreator;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
@@ -29,16 +37,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class LabelControllerTest {
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper om;
-
     @Autowired
     LabelRepository labelRepository;
+    @Autowired
+    ModelCreator modelCreator;
+    @Autowired
+    LabelMapper labelMapper;
+    @Autowired
+    UserRepository userRepository;
+
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
+
+    Label testLabel;
+
+    User testUser;
+
+    @BeforeEach
+    public void beforeEach() {
+        testLabel = modelCreator.labelModel();
+        testUser = modelCreator.userModel();
+        token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
+    }
+
+    @AfterEach
+    public void afterEach() {
+        labelRepository.deleteAll();
+    }
 
     @Test
     public void testIndex() throws Exception {
-        var result = mockMvc.perform(get("/api/labels").with(jwt()))
+        var result = mockMvc.perform(get("/api/labels").with(token))
                 .andExpect(status().isOk()).andReturn();
         var body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray();
@@ -46,40 +76,40 @@ public class LabelControllerTest {
 
     @Test
     public void testShow() throws Exception {
-        var result = mockMvc.perform(get("/api/labels/1").with(jwt()))
+        labelRepository.save(testLabel);
+        var result = mockMvc.perform(get("/api/labels/{id}", testLabel.getId()).with(token))
                 .andExpect(status().isOk()).andReturn();
         var body = result.getResponse().getContentAsString();
-        var name = labelRepository.findAll().get(0).getName();
+        var name = testLabel.getName();
         assertThatJson(body).toString().contains(name);
     }
 
     @Test
     public void testCreate() throws Exception {
-        var label = new LabelCreateDTO();
-        label.setName("test_label");
+        var label = labelMapper.map(testLabel);
 
         mockMvc.perform(
                 post("/api/labels")
-                        .with(jwt())
+                        .with(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(om.writeValueAsString(label))
         ).andExpect(status().isCreated());
 
-        assertThat(labelRepository.findByName("test_label").isPresent()).isTrue();
+        assertThat(labelRepository.findByName(label.getName()).isPresent()).isTrue();
     }
 
     @Test
     public void testUpdate() throws Exception {
-        var data = new HashMap<>();
-        data.put("name", "new_label");
+        labelRepository.save(testLabel);
+        var data = new LabelUpdateDTO();
+        var label = "new_label";
+        data.setName(label);
 
-        var request = put("/api/labels/1").with(jwt())
+        var request = put("/api/labels/{id}", testLabel.getId()).with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
-
         mockMvc.perform(request);
-
-        assertThat(labelRepository.findByName("new_label").isPresent()).isTrue();
+        assertThat(labelRepository.findByName(label).isPresent()).isTrue();
     }
 
     @Test

@@ -25,59 +25,45 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Getter
 @Setter
 public class User implements UserDetails, BaseEntity {
-
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
-
     private String firstName;
-
     private String lastName;
-
     @Email
     @Column(unique = true)
     private String email;
-
     @Size(min = 3)
     @NotBlank
     private String passwordDigest;
-
     @CreatedDate
     private LocalDate createdAt;
-
     @LastModifiedDate
     private LocalDate updatedAt;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return new ArrayList<GrantedAuthority>();
     }
-
     @Override
     public String getUsername() {
         return email;
     }
-
     @Override
     public String getPassword() {
         return passwordDigest;
     }
-
     @Override
     public boolean isAccountNonExpired() {
         return UserDetails.super.isAccountNonExpired();
     }
-
     @Override
     public boolean isAccountNonLocked() {
         return UserDetails.super.isAccountNonLocked();
     }
-
     @Override
     public boolean isCredentialsNonExpired() {
         return UserDetails.super.isCredentialsNonExpired();
     }
-
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
