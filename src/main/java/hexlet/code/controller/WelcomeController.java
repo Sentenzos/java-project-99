@@ -9,14 +9,4 @@ public class WelcomeController {
     public String welcome() {
         return "Welcome to Spring";
     }
-
-//    @GetMapping("/")
-//    public String ind() {
-//        return null;
-//    }
-
-//    @GetMapping("/api/login")
-//    public String login() {
-//        return null;
-//    }
 }

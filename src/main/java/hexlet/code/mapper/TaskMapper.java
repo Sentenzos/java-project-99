@@ -3,19 +3,20 @@ package hexlet.code.mapper;
 import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
-import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
-import hexlet.code.dto.taskStatus.TaskStatusDTO;
-import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
-import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
 import java.util.Set;
@@ -33,21 +34,21 @@ public abstract class TaskMapper {
     @Autowired
     private LabelRepository labelRepository;
 
-    @Mapping(target = "assignee", source = "assignee_id")
+    @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "description", source = "content")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "taskStatus", source = "status", qualifiedByName = "getStatusBySlug")
     @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "getLabels")
     public abstract Task map(TaskCreateDTO dto);
 
-    @Mapping(target = "assignee_id", source = "assignee.id")
+    @Mapping(target = "assigneeId", source = "assignee.id")
     @Mapping(target = "content", source = "description")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "status", source = "taskStatus.slug")
     @Mapping(target = "taskLabelIds", source = "labels", qualifiedByName = "getLabelIds")
     public abstract TaskDTO map(Task model);
 
-    @Mapping(target = "assignee", source = "assignee_id")
+    @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "description", source = "content")
     @Mapping(target = "name", source = "title")
     @Mapping(target = "taskStatus", source = "status", qualifiedByName = "getStatusBySlug")

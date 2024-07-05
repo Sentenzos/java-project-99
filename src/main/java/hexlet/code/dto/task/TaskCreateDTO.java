@@ -19,5 +19,6 @@ public class TaskCreateDTO {
     @NotBlank
     private String status;
     private Set<Long> taskLabelIds;
-    private Long assignee_id;
+    @JsonProperty("assignee_id")
+    private Long assigneeId;
 }
