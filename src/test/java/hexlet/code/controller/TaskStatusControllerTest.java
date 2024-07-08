@@ -11,6 +11,7 @@ import hexlet.code.util.ModelCreator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -102,7 +103,9 @@ public class TaskStatusControllerTest {
 
         var data = new TaskStatusUpdateDTO();
         var name = "new_name";
-        data.setName(name);
+        var slug = "new_slug";
+        data.setName(JsonNullable.of(name));
+        data.setSlug(JsonNullable.of(slug));
 
         var request = put("/api/task_statuses/" + taskStatusId)
                 .with(token)
@@ -111,7 +114,11 @@ public class TaskStatusControllerTest {
 
         mockMvc.perform(request);
 
-        assertThat(taskStatusRepository.findById(taskStatusId).get().getName()).isEqualTo(name);
+        var taskStatus = taskStatusRepository.findById(taskStatusId).get();
+
+        assertThat(taskStatus).isNotNull();
+        assertThat(taskStatus.getName()).isEqualTo(name);
+        assertThat(taskStatus.getSlug()).isEqualTo(slug);
     }
 
     @Test
