@@ -40,7 +40,6 @@ public class LabelService {
 
     public LabelDTO create(LabelCreateDTO data) {
         var label = labelMapper.map(data);
-        System.out.println(label);
         labelRepository.save(label);
         return labelMapper.map(label);
     }

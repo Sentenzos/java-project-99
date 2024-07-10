@@ -1,7 +1,10 @@
 build:
-	gradle clean build
+	./gradlew clean build
 
 report:
-	gradle jacocoTestReport
+	./gradlew jacocoTestReport
+
+run:
+	./gradlew bootRun
 
 .PHONY: build
