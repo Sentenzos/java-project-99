@@ -1,8 +1,7 @@
 package hexlet.code.controller;
 
-import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
+import hexlet.code.dto.taskStatus.TaskStatusCreateUpdateDTO;
 import hexlet.code.dto.taskStatus.TaskStatusDTO;
-import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
 import hexlet.code.service.TaskStatusService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +38,12 @@ public class TaskStatusesController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskStatusDTO create(@RequestBody @Valid TaskStatusCreateDTO data) {
+    public TaskStatusDTO create(@RequestBody @Valid TaskStatusCreateUpdateDTO data) {
         return taskStatusService.create(data);
     }
 
     @PutMapping("/{id}")
-    public TaskStatusDTO update(@PathVariable Long id, @Valid @RequestBody TaskStatusUpdateDTO data) {
+    public TaskStatusDTO update(@PathVariable Long id, @Valid @RequestBody TaskStatusCreateUpdateDTO data) {
         return taskStatusService.update(id, data);
     }
 

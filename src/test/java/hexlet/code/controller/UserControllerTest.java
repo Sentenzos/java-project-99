@@ -1,7 +1,7 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.user.UserUpdateDTO;
+import hexlet.code.dto.user.UserCreateUpdateDTO;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
@@ -79,20 +79,24 @@ public class UserControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        var user = modelCreator.userModel();
+        var userDTO = userMapper.map(modelCreator.userModel());
         var request = post("/api/users").with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(user));
+                .content(om.writeValueAsString(userDTO));
 
         mockMvc.perform(request)
                 .andExpect(status().isCreated());
 
-        assertThat(userRepository.findByEmail(user.getEmail()).isPresent()).isTrue();
+        var user = userRepository.findByEmail(userDTO.getEmail());
+
+        assertThat(user.isPresent()).isTrue();
+        assertThat(user.get().getFirstName()).isEqualTo(userDTO.getFirstName());
+        assertThat(user.get().getLastName()).isEqualTo(userDTO.getLastName());
     }
 
     @Test
     public void testUpdate() throws Exception {
-        var data = new UserUpdateDTO();
+        var data = new UserCreateUpdateDTO();
         var email = JsonNullable.of("new@email.com");
         data.setEmail(email);
 
@@ -102,7 +106,10 @@ public class UserControllerTest {
 
         mockMvc.perform(request);
 
-        assertThat(userRepository.findByEmail(email.get()).isPresent()).isTrue();
+        var user = userRepository.findById(testUser.getId());
+
+        assertThat(user.isPresent()).isTrue();
+        assertThat(user.get().getEmail()).isEqualTo(email.get());
     }
 
     @Test

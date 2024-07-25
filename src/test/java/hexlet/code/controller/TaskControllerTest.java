@@ -1,7 +1,7 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.task.TaskUpdateDTO;
+import hexlet.code.dto.task.TaskCreateUpdateDTO;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Task;
 import hexlet.code.repository.LabelRepository;
@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -109,6 +110,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @Transactional
     public void testCreate() throws Exception {
         var taskCreateDto = taskMapper.map(testTask);
         mockMvc.perform(
@@ -116,15 +118,22 @@ public class TaskControllerTest {
                         .with(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(om.writeValueAsString(taskCreateDto))
-        ).andExpect(status().isCreated());
+        ). andExpect(status().isCreated());
+
         var name = taskCreateDto.getTitle();
-        assertThat(taskRepository.findByName(name).isPresent()).isTrue();
+        var task = taskRepository.findByName(name).get();
+
+        assertThat(task).isNotNull();
+        assertThat(task.getDescription()).isEqualTo(testTask.getDescription());
+        assertThat(task.getTaskStatus().getId()).isEqualTo(testTask.getTaskStatus().getId());
+        assertThat(task.getAssignee().getId()).isEqualTo(testTask.getAssignee().getId());
+        assertThat(task.getLabels().toString()).isEqualTo(testTask.getLabels().toString());
     }
 
     @Test
     public void testUpdate() throws Exception {
         taskRepository.save(testTask);
-        var data = new TaskUpdateDTO();
+        var data = new TaskCreateUpdateDTO();
         var title = JsonNullable.of("new_title");
         var content = JsonNullable.of("new_content");
         data.setTitle(title);
@@ -133,7 +142,11 @@ public class TaskControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(data));
         mockMvc.perform(request);
-        assertThat(taskRepository.findByName(title.get()).isPresent()).isTrue();
+
+        var task = taskRepository.findById(testTask.getId());
+        assertThat(task.isPresent()).isTrue();
+        assertThat(task.get().getName()).isEqualTo(title.get());
+        assertThat(task.get().getDescription()).isEqualTo(content.get());
     }
 
     @Test

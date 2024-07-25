@@ -1,8 +1,7 @@
 package hexlet.code.mapper;
 
-import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
+import hexlet.code.dto.taskStatus.TaskStatusCreateUpdateDTO;
 import hexlet.code.dto.taskStatus.TaskStatusDTO;
-import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
 import hexlet.code.model.TaskStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -18,8 +17,8 @@ import org.mapstruct.MappingTarget;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public abstract class TaskStatusMapper {
-    public abstract TaskStatus map(TaskStatusCreateDTO data);
+    public abstract TaskStatus map(TaskStatusCreateUpdateDTO data);
     public abstract TaskStatusDTO map(TaskStatus data);
     @InheritConfiguration
-    public abstract void update(TaskStatusUpdateDTO data, @MappingTarget TaskStatus taskStatus);
+    public abstract void update(TaskStatusCreateUpdateDTO data, @MappingTarget TaskStatus taskStatus);
 }

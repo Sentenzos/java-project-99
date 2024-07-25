@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class TaskUpdateDTO {
+public class TaskCreateUpdateDTO {
     @Size(min = 1)
     @NotBlank
     private JsonNullable<String> title;

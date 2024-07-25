@@ -4,11 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Data
-public class LabelUpdateDTO {
+public class LabelCreateUpdateDTO {
     @NotBlank
     @Size(min = 3)
     @Column(unique = true)
-    private String name;
+    private JsonNullable<String> name;
 }

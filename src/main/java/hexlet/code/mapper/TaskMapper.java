@@ -1,8 +1,7 @@
 package hexlet.code.mapper;
 
-import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
-import hexlet.code.dto.task.TaskUpdateDTO;
+import hexlet.code.dto.task.TaskCreateUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
@@ -39,7 +38,7 @@ public abstract class TaskMapper {
     @Mapping(target = "name", source = "title")
     @Mapping(target = "taskStatus", source = "status", qualifiedByName = "getStatusBySlug")
     @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "getLabels")
-    public abstract Task map(TaskCreateDTO dto);
+    public abstract Task map(TaskCreateUpdateDTO dto);
 
     @Mapping(target = "assigneeId", source = "assignee.id")
     @Mapping(target = "content", source = "description")
@@ -53,7 +52,7 @@ public abstract class TaskMapper {
     @Mapping(target = "name", source = "title")
     @Mapping(target = "taskStatus", source = "status", qualifiedByName = "getStatusBySlug")
     @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "getLabels")
-    public abstract void update(TaskUpdateDTO dto, @MappingTarget Task model);
+    public abstract void update(TaskCreateUpdateDTO dto, @MappingTarget Task model);
 
     @Named("getStatusBySlug")
     TaskStatus getStatusBySlug(String status) {

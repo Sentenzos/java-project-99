@@ -1,8 +1,7 @@
 package hexlet.code.service;
 
-import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.dto.label.LabelDTO;
-import hexlet.code.dto.label.LabelUpdateDTO;
+import hexlet.code.dto.label.LabelCreateUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.repository.LabelRepository;
@@ -38,13 +37,13 @@ public class LabelService {
         return labelMapper.map(task);
     }
 
-    public LabelDTO create(LabelCreateDTO data) {
+    public LabelDTO create(LabelCreateUpdateDTO data) {
         var label = labelMapper.map(data);
         labelRepository.save(label);
         return labelMapper.map(label);
     }
 
-    public LabelDTO update(Long id, LabelUpdateDTO data) {
+    public LabelDTO update(Long id, LabelCreateUpdateDTO data) {
         var label = labelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
         labelMapper.update(data, label);

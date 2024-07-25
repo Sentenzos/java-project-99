@@ -1,7 +1,7 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.label.LabelUpdateDTO;
+import hexlet.code.dto.label.LabelCreateUpdateDTO;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.model.User;
@@ -11,6 +11,7 @@ import hexlet.code.util.ModelCreator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -95,9 +96,9 @@ public class LabelControllerTest {
     @Test
     public void testUpdate() throws Exception {
         labelRepository.save(testLabel);
-        var data = new LabelUpdateDTO();
+        var data = new LabelCreateUpdateDTO();
         var label = "new_label";
-        data.setName(label);
+        data.setName(JsonNullable.of(label));
 
         var request = put("/api/labels/{id}", testLabel.getId()).with(token)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -1,8 +1,7 @@
 package hexlet.code.mapper;
 
-import hexlet.code.dto.user.UserCreateDTO;
+import hexlet.code.dto.user.UserCreateUpdateDTO;
 import hexlet.code.dto.user.UserDTO;
-import hexlet.code.dto.user.UserUpdateDTO;
 import hexlet.code.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -27,19 +26,13 @@ public abstract class UserMapper {
     private PasswordEncoder passwordEncoder;
 
     @Mapping(target = "passwordDigest", source = "password")
-    public abstract User map(UserCreateDTO userCreateDTO);
+    public abstract User map(UserCreateUpdateDTO userCreateUpdateDTO);
     public abstract UserDTO map(User user);
     @InheritConfiguration
-    public abstract void update(UserUpdateDTO updateDTO, @MappingTarget User user);
+    public abstract void update(UserCreateUpdateDTO updateDTO, @MappingTarget User user);
 
     @BeforeMapping
-    public void encryptPassword(UserCreateDTO data) {
-        var password = data.getPassword();
-        data.setPassword(passwordEncoder.encode(password));
-    }
-
-    @BeforeMapping
-    public void encryptPassword(UserUpdateDTO updateDTO) {
+    public void encryptPassword(UserCreateUpdateDTO updateDTO) {
         if (updateDTO.getPassword() != null) {
             String password = updateDTO.getPassword().get();
             updateDTO.setPassword(JsonNullable.of(passwordEncoder.encode(password)));

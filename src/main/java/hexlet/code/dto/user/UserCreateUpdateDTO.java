@@ -8,7 +8,7 @@ import lombok.Data;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 @Data
-public class UserUpdateDTO {
+public class UserCreateUpdateDTO {
 
     private JsonNullable<String> firstName;
 

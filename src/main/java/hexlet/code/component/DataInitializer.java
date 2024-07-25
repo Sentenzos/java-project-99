@@ -1,11 +1,12 @@
 package hexlet.code.component;
 
-import hexlet.code.dto.user.UserCreateDTO;
+import hexlet.code.dto.user.UserCreateUpdateDTO;
 import hexlet.code.model.Label;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.UserService;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -37,9 +38,9 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void createUser(String email, String password) {
-        var user = new UserCreateDTO();
-        user.setEmail(email);
-        user.setPassword(password);
+        var user = new UserCreateUpdateDTO();
+        user.setEmail(JsonNullable.of(email));
+        user.setPassword(JsonNullable.of(password));
         userService.create(user);
     }
 

@@ -1,8 +1,7 @@
 package hexlet.code.service;
 
-import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
-import hexlet.code.dto.user.UserUpdateDTO;
+import hexlet.code.dto.user.UserCreateUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.repository.UserRepository;
@@ -38,13 +37,13 @@ public class UserService {
         return userMapper.map(user);
     }
 
-    public UserDTO create(UserCreateDTO data) {
+    public UserDTO create(UserCreateUpdateDTO data) {
         var user = userMapper.map(data);
         userRepository.save(user);
         return userMapper.map(user);
     }
 
-    public UserDTO update(Long id, UserUpdateDTO data) {
+    public UserDTO update(Long id, UserCreateUpdateDTO data) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
         userMapper.update(data, user);

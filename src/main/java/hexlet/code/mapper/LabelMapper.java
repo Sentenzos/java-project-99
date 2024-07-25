@@ -1,8 +1,7 @@
 package hexlet.code.mapper;
 
-import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.dto.label.LabelDTO;
-import hexlet.code.dto.label.LabelUpdateDTO;
+import hexlet.code.dto.label.LabelCreateUpdateDTO;
 import hexlet.code.model.Label;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -18,8 +17,8 @@ import org.mapstruct.MappingTarget;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public abstract class LabelMapper {
-    public abstract Label map(LabelCreateDTO labelCreateDTO);
+    public abstract Label map(LabelCreateUpdateDTO labelCreateDTO);
     public abstract LabelDTO map(Label label);
     @InheritConfiguration
-    public abstract void update(LabelUpdateDTO updateDTO, @MappingTarget Label label);
+    public abstract void update(LabelCreateUpdateDTO updateDTO, @MappingTarget Label label);
 }

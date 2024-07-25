@@ -1,7 +1,7 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
+import hexlet.code.dto.taskStatus.TaskStatusCreateUpdateDTO;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
@@ -83,16 +83,19 @@ public class TaskStatusControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        var taskStatus = taskStatusMapper.map(testTaskStatus);
+        var taskStatusDTO = taskStatusMapper.map(testTaskStatus);
 
         var request = post("/api/task_statuses").with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(taskStatus));
+                .content(om.writeValueAsString(taskStatusDTO));
 
         mockMvc.perform(request)
                 .andExpect(status().isCreated());
 
-        assertThat(taskStatusRepository.findBySlug(taskStatus.getSlug()).isPresent()).isTrue();
+        var taskStatus = taskStatusRepository.findBySlug(taskStatusDTO.getSlug());
+
+        assertThat(taskStatus.isPresent()).isTrue();
+        assertThat(taskStatus.get().getName()).isEqualTo(testTaskStatus.getName());
     }
 
     @Test
@@ -101,7 +104,7 @@ public class TaskStatusControllerTest {
 
         var taskStatusId = testTaskStatus.getId();
 
-        var data = new TaskStatusUpdateDTO();
+        var data = new TaskStatusCreateUpdateDTO();
         var name = "new_name";
         var slug = "new_slug";
         data.setName(JsonNullable.of(name));
@@ -114,11 +117,11 @@ public class TaskStatusControllerTest {
 
         mockMvc.perform(request);
 
-        var taskStatus = taskStatusRepository.findById(taskStatusId).get();
+        var taskStatus = taskStatusRepository.findById(taskStatusId);
 
-        assertThat(taskStatus).isNotNull();
-        assertThat(taskStatus.getName()).isEqualTo(name);
-        assertThat(taskStatus.getSlug()).isEqualTo(slug);
+        assertThat(taskStatus.isPresent()).isTrue();
+        assertThat(taskStatus.get().getName()).isEqualTo(name);
+        assertThat(taskStatus.get().getSlug()).isEqualTo(slug);
     }
 
     @Test
