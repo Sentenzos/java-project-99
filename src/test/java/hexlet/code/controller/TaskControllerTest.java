@@ -118,7 +118,7 @@ public class TaskControllerTest {
                         .with(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(om.writeValueAsString(taskCreateDto))
-        ). andExpect(status().isCreated());
+        ).andExpect(status().isCreated());
 
         var name = taskCreateDto.getTitle();
         var task = taskRepository.findByName(name).get();
